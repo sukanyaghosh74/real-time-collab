@@ -1,33 +1,25 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { fabric } from "fabric";
 
-const Canvas = ({ ws }) => {
+function Canvas({ socket }) {
     const canvasRef = useRef(null);
 
     useEffect(() => {
-        const canvas = new fabric.Canvas(canvasRef.current);
-        canvas.isDrawingMode = true;
+        canvasRef.current = new fabric.Canvas("canvas", { backgroundColor: "white" });
 
-        ws.onmessage = (event) => {
+        socket?.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "draw") {
-                fabric.loadSVGFromString(data.svg, (objects, options) => {
-                    const obj = fabric.util.groupSVGElements(objects, options);
-                    canvas.add(obj);
-                    canvas.renderAll();
+                fabric.util.enlivenObjects([data.object], (objects) => {
+                    objects.forEach((obj) => canvasRef.current.add(obj));
                 });
             }
         };
 
-        canvas.on("path:created", (event) => {
-            const svg = event.path.toSVG();
-            ws.send(JSON.stringify({ type: "draw", svg }));
-        });
+        return () => canvasRef.current.dispose();
+    }, [socket]);
 
-        return () => canvas.dispose();
-    }, [ws]);
-
-    return <canvas ref={canvasRef} width={800} height={500} />;
-};
+    return <canvas id="canvas" width={800} height={600}></canvas>;
+}
 
 export default Canvas;

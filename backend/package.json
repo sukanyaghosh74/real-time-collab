@@ -1,0 +1,11 @@
+{
+  "name": "real-time-collab-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "ws": "^8.11.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
